@@ -258,3 +258,163 @@ def chunk_document_resumable(chapters: List[Dict], checkpoint_path: str | Path) 
         _save_checkpoint(checkpoint_path, i, all_chunks)
 
     return all_chunks
+
+# -------------------------------
+# L3 EXTRACTION PROMPT
+# -------------------------------
+
+L3_EXTRACTION_PROMPT = """
+You are extracting atomic clinical facts from a medical guideline.
+
+STRICT RULES:
+1. Extract ONLY facts that must be preserved EXACTLY
+2. DO NOT paraphrase
+3. Keep each fact self-contained
+4. Include numbers, units, thresholds EXACTLY
+5. Split multi-step instructions into separate items
+6. IGNORE explanations, background, or descriptive text
+7. If a sentence contains multiple actions or conditions, split into separate items
+8. NEVER return headings, labels, or section titles
+9. Each item MUST be a complete sentence
+
+Return ONLY valid JSON:
+
+[
+    {{
+        "text": "..."
+    }}
+]
+
+TEXT:
+{input_text}
+"""
+
+
+# -------------------------------
+# L3 GENERATION FOR SINGLE L2
+# -------------------------------
+
+def generate_l3_from_l2(l2_chunk: Dict) -> List[Dict]:
+    """
+    Generate L3 chunks (atomic facts) from a single L2 chunk.
+    """
+
+    prompt = L3_EXTRACTION_PROMPT.format(input_text=l2_chunk["text"])
+
+    raw_output = call_gemini(prompt)
+
+    try:
+        l3_items = safe_json_loads(raw_output)
+    except Exception as e:
+        print("[ERROR] L3 parsing failed")
+        print(raw_output)
+        raise e
+
+    l3_chunks = []
+
+    for idx, item in enumerate(l3_items):
+        text = item.get("text", "").strip()
+
+        # Basic filtering (IMPORTANT)
+        if not text:
+            continue
+        
+        # Reject headers / labels
+        if text.isupper():
+            continue
+
+        if len(text.split()) < 5:
+            continue
+
+        if text.endswith(":"):
+            continue
+
+        # Reject fragments (no verb heuristic)
+        if not any(v in text.lower() for v in ["is", "are", "was", "were", "has", "have", "should", "results", "leads"]):
+            continue
+
+        if len(text.split()) < 3:
+            continue  # too small, likely noise
+
+        l3_chunks.append({
+            "chunk_id": f"{l2_chunk['chunk_id']}_L3_{idx+1}",
+            "parent_id": l2_chunk["chunk_id"],
+            "level": 3,
+            "text": text
+        })
+
+    return l3_chunks
+
+
+# -------------------------------
+# L3 GENERATION FOR FILE (TEST MODE)
+# -------------------------------
+
+def generate_l3_for_file(
+    l2_chunks: List[Dict],
+    output_path: str = "temp_l3.json",
+    checkpoint_path: str | Path | None = None,
+) -> List[Dict]:
+    """
+    Generate L3 chunks for a single file's L2 chunks.
+    Saves output to project root as temp_l3.json
+    """
+
+    checkpoint_path = Path(checkpoint_path) if checkpoint_path else Path(str(output_path) + ".checkpoint.json")
+    all_l3_chunks: List[Dict] = []
+    working_l2_chunks: List[Dict] = l2_chunks
+    start_idx = 0
+
+    if checkpoint_path.exists():
+        with open(checkpoint_path, "r", encoding="utf-8") as f:
+            state = json.load(f)
+
+        working_l2_chunks = state.get("l2_chunks", l2_chunks)
+        all_l3_chunks = state.get("l3_chunks", [])
+        last_completed_index = state.get("last_completed_index", -1)
+        start_idx = max(0, last_completed_index + 1)
+        print(
+            f"[RESUME-L3] Loaded checkpoint {checkpoint_path} | "
+            f"last completed L2 index: {last_completed_index}"
+        )
+
+    for i in range(start_idx, len(working_l2_chunks)):
+        l2 = working_l2_chunks[i]
+        print(f"[L3] Processing {i+1}/{len(working_l2_chunks)}: {l2['chunk_id']}")
+
+        try:
+            l3_chunks = generate_l3_from_l2(l2)
+
+            # Attach child_ids to L2
+            l2["child_ids"] = [c["chunk_id"] for c in l3_chunks]
+            all_l3_chunks.extend(l3_chunks)
+
+        except Exception as e:
+            print(f"[ERROR] Failed on {l2['chunk_id']}: {e}")
+            l2["child_ids"] = []
+
+        finally:
+            checkpoint_payload = {
+                "last_completed_index": i,
+                "l2_chunks": working_l2_chunks,
+                "l3_chunks": all_l3_chunks,
+            }
+            checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(checkpoint_path, "w", encoding="utf-8") as f:
+                json.dump(checkpoint_payload, f, indent=2, ensure_ascii=False)
+
+    # Save final output
+    output_data = {
+        "l2_chunks": working_l2_chunks,
+        "l3_chunks": all_l3_chunks
+    }
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(output_data, f, indent=2, ensure_ascii=False)
+
+    if checkpoint_path.exists():
+        checkpoint_path.unlink()
+
+    print(f"[DONE] L3 saved to {output_path}")
+
+    return all_l3_chunks
