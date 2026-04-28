@@ -1,15 +1,40 @@
 import json
 from typing import List, Dict
-from google import genai
 import os
 from dotenv import load_dotenv
 from pathlib import Path
+
+# Attempt to import the GenAI client from known provider packages.
+# Different environments may expose this as `from google import genai` or
+# `import google.generativeai as genai`. Fall back gracefully and
+# provide informative errors if unavailable.
+try:
+    from google import genai  # preferred in some installs
+except Exception:
+    try:
+        import google.genai as genai
+    except Exception:
+        genai = None
 
 # -------------------------------
 # CONFIG (SET YOUR API KEY)
 # -------------------------------
 load_dotenv()
-client = genai.Client(api_key=os.getenv("llm_key"))
+# Initialize a client abstraction depending on the imported library.
+if genai is None:
+    client = None
+else:
+    # Some genai packages expose a Client class, others expose top-level functions.
+    if hasattr(genai, "Client"):
+        client = genai.Client(api_key=os.getenv("llm_key"))
+    else:
+        # e.g. google.generativeai often uses a configure() + generate() pattern
+        if hasattr(genai, "configure"):
+            try:
+                genai.configure(api_key=os.getenv("llm_key"))
+            except Exception:
+                pass
+        client = genai
 
 
 # -------------------------------
@@ -67,19 +92,51 @@ def call_gemini(prompt: str) -> str:
     """
     Gemini LLM call (deterministic).
     """
+    if client is None:
+        raise ImportError(
+            "GenAI client not available. Install 'google-generativeai' or the appropriate SDK "
+            "and set the environment variable 'llm_key'."
+        )
 
-    response = client.models.generate_content(
-        model="gemini-2.5-flash-lite",
-        contents=prompt,
-        config={
-            "temperature": 0,
-            "top_p": 1,
-            "top_k": 1,
-            "max_output_tokens": 8192
-        }
-    )
+    # Try different client interfaces depending on the installed package.
+    try:
+        # Newer SDKs may provide a `Client` with `models.generate_content`
+        if hasattr(client, "models") and hasattr(client.models, "generate_content"):
+            response = client.models.generate_content(
+                model="gemini-2.5-flash-lite",
+                contents=prompt,
+                config={
+                    "temperature": 0,
+                    "top_p": 1,
+                    "top_k": 1,
+                    "max_output_tokens": 8192
+                }
+            )
+            text = getattr(response, "text", None)
+            if text is None:
+                # some responses return dict-like objects
+                try:
+                    text = response.get("candidates", [])[0].get("content", "")
+                except Exception:
+                    text = str(response)
 
-    return response.text.strip()
+        # Older google.generativeai exposes a top-level `generate` function
+        elif hasattr(genai, "generate"):
+            response = genai.generate(model="gemini-2.5-flash-lite", input=prompt)
+            text = getattr(response, "text", None) or response.get("candidates", [])[0].get("content", "")
+
+        else:
+            # Fallback: try calling a `generate` method on the client object
+            if hasattr(client, "generate"):
+                response = client.generate(model="gemini-2.5-flash-lite", input=prompt)
+                text = getattr(response, "text", None) or str(response)
+            else:
+                raise RuntimeError("Unsupported GenAI client API; please update the SDK or adapt this wrapper.")
+
+    except Exception as e:
+        raise
+
+    return text.strip()
 
 
 # -------------------------------
