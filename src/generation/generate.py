@@ -34,7 +34,7 @@ class MedicalRAGGenerator:
     def __init__(
         self,
         corpus_path: str,
-        model_name: str = "gemma4:e2b",
+        model_name: str = "gemma4:e4b",
         milvus_host: str = "localhost",
         milvus_port: str = "19530",
         top_k: int = 5,
