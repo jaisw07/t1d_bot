@@ -1,0 +1,24 @@
+Strengths
+
+Conversation tone imitated a real human-to-human interaction
+Clear instructions in point form
+Easily understood and mostly accurate responses from multiple trustworthy online sources
+No medical jargon
+Most answers safely highlighted the importance of remaining in contact with the child’s health care provider
+Generally useful information, available 24-7
+Potential for immediate translation to support families who face language barriers
+Limitations
+
+New diagnosis
+No reference to the International Society for Pediatric and Adolescent Diabetes, which provides specific guidelines for children, such as a target blood glucose range of 70-180 mg/dl (4-10 mmol/L)
+Recognizing and managing hypo- or hyperglycemia
+No mention of home ketone testing in the management of hyperglycemia, a critical step in assessing the risk of diabetic ketoacidosis while the child is still at home
+No mention that the amount of carbohydrates used to treat hypoglycemia depends on the child’s weight; for example giving 15 g of carbohydrates to a 20 kg child would cause rebound hyperglycemia, while 5 g of carbohydrates to an adolescent would not be enough; also, the type of insulin therapy influences how a low blood glucose is treated; for example, if the child is on standard pump therapy and has a glucose level <3 mmol/L, we recommend suspending insulin delivery until glucose >4 mmol/L
+Glucometers and insulin analogs
+It would be useful if images accompanied the step-by-step instructions on how to use a glucometer, the insulin pen, and the body parts where insulin injections can be self-administered.
+No mention of admelog (insulin lispro) or trurapi (insulin aspart), insulin products approved by Health Canada. No mention of Tresiba, a newer long-acting insulin often used to provide more flexibility.
+Newer diabetes technologies
+Blood glucose is provided only in mg/dl. ChatGPT did not provide the international consensus guidelines on time above range (<25%) and time below range (<4%).
+Incorrect information that insulin pumps only give short- or rapid-acting insulin. Long-acting insulin is not necessary as the pump delivers tiny amounts of insulin every few minutes.
+
+When asked common questions on T1D, ChatGPT provided useful answers, though they were at times lengthy and lacked pediatric-specific details. It used clear terminology that had the potential for immediate translation to different languages. One important deficiency was noted regarding counseling for hyperglycemia, as it omitted the need for ketone measurement at home. The chatbot also provided inaccurate information on the type of insulin delivered by pumps

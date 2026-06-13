@@ -112,6 +112,16 @@ class MedicalRAGGenerator:
         answer = response["message"]["content"]
 
         # -------------------------------------------------
+        # Extract unique sources
+        # -------------------------------------------------
+
+        sources = sorted(list(set([
+            r["l2_chunk"]["chapter_title"]
+            for r in retrieval_package["retrievals"]
+            if r["l2_chunk"].get("chapter_title")
+        ])))
+
+        # -------------------------------------------------
         # Final package
         # -------------------------------------------------
 
@@ -120,6 +130,8 @@ class MedicalRAGGenerator:
             "query": query,
 
             "answer": answer,
+
+            "sources": sources,
 
             "retrieval_package":
                 retrieval_package,

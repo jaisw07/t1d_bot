@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Architecture review — t1d_bot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module">
+      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+      mermaid.initialize({ startOnLoad: true, theme: "neutral", securityLevel: "loose" });
+    </script>
+    <style>
+      .seam { stroke-dasharray: 4 4; }
+      .leak { stroke: #dc2626; }
+      .deep { background: linear-gradient(135deg, #0f172a, #1e293b); }
+      body { font-family: 'Georgia', serif; }
+      .badge-strong { background: #059669; color: white; }
+      .badge-worth { background: #d97706; color: white; }
+      .badge-speculative { background: #64748b; color: white; }
+      .mass-bar { transition: all 0.3s ease; }
+      .module-box { border: 2px solid #334155; border-radius: 6px; padding: 8px 12px; text-align: center; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+      .module-box.deep-mod { border-width: 3px; border-color: #0f172a; background: linear-gradient(135deg, #0f172a, #1e293b); color: #e2e8f0; }
+      .module-box.shallow-mod { border-style: dashed; border-color: #94a3b8; color: #64748b; }
+      .module-box.dead-mod { border-style: dotted; border-color: #cbd5e1; color: #94a3b8; background: #f8fafc; }
+    </style>
+  </head>
+  <body class="bg-stone-50 text-slate-900 font-sans">
+    <main class="max-w-5xl mx-auto px-6 py-12 space-y-12">
+
+      <!-- HEADER -->
+      <header class="border-b border-slate-300 pb-8">
+        <h1 class="text-3xl font-serif font-bold text-slate-800">Architecture Review — t1d_bot</h1>
+        <p class="text-sm text-slate-500 mt-1">2026-06-13 · Current state vs. redesign.md proposal</p>
+        <div class="flex gap-6 mt-4 text-xs text-slate-600">
+          <span>◼ solid box = module</span>
+          <span class="border-dashed border-b-2 border-slate-400 pb-0.5">┄ dashed = seam</span>
+          <span class="text-red-600">→ red = leakage</span>
+          <span class="px-2 py-0.5 rounded deep text-white text-xs">thick dark = deep module</span>
+        </div>
+      </header>
+
+      <!-- EXECUTIVE SUMMARY -->
+      <section class="bg-amber-50 border border-amber-200 rounded-lg p-6">
+        <h2 class="text-lg font-serif font-bold text-amber-800 mb-3">Key Finding: Rewrite vs. Iterate</h2>
+        <p class="text-sm text-slate-700 leading-relaxed">
+          The current codebase is <strong>~2,050 lines of src</strong> across 13 modules. Of those, <strong>~40% is ISPAD-specific hardcoding</strong> that the redesign deletes. 
+          The redesign proposes <strong>15 new/modified files</strong> touching every module except <code>evaluate.py</code>. 
+          At this scale, <strong>iterative migration and a fresh start converge to nearly the same effort</strong> — both require rewriting ~1,200 lines and adding ~800 new ones. 
+          The deciding factor is whether the <strong>existing seams are worth preserving</strong> or whether they actively hinder the target architecture. This report evaluates that.
+        </p>
+      </section>
+
+      <!-- CANDIDATES -->
+      <section id="candidates" class="space-y-10">
+
+        <!-- ═══════ CANDIDATE 1 ═══════ -->
+        <article class="bg-white rounded-xl shadow-sm border border-slate-200 p-8">
+          <div class="flex items-center gap-3 mb-2">
+            <h2 class="text-xl font-serif font-bold">1. Deepen the Ingestion Pipeline into One Module</h2>
+            <span class="badge-strong text-xs font-mono px-2 py-0.5 rounded-full">Strong</span>
+          </div>
+
+          <p class="font-mono text-sm text-slate-500 mb-4">
+            pdf_extractor.py · chapter_detector.py · chunker.py · metadata_generator.py · normalize.py
+          </p>
+
+          <!-- BEFORE / AFTER -->
+          <div class="grid grid-cols-2 gap-6 mb-6">
+            <!-- BEFORE -->
+            <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <p class="text-xs uppercase tracking-wider text-slate-400 mb-3 font-bold">Before (current)</p>
+              <pre class="mermaid">
+flowchart TD
+  A["PDFExtractor<br/><em>172 lines</em>"] --> B["ChapterDetector<br/><em>343 lines, ISPAD-locked</em>"]
+  B --> C["SemanticChunker<br/><em>353 lines, Gemini-locked</em>"]
+  C --> D["MetadataGenerator<br/><em>233 lines, Gemini-locked</em>"]
+  D --> E["ChunkNormalizer<br/><em>135 lines, ISPAD IDs</em>"]
+  E --> F["Jupyter Notebooks<br/><em>manual orchestration</em>"]
+  classDef leak stroke:#dc2626,stroke-width:2px,fill:#fef2f2;
+  classDef shallow stroke-dasharray:4 4,stroke:#94a3b8;
+  class B,C,D leak
+  class F shallow
+              </pre>
+              <p class="text-xs text-slate-500 mt-2">5 modules, each with its own interface. Caller (notebook) must know the output shape of each to pipe them together. No seam — just serial coupling with ISPAD logic baked into 3 modules.</p>
+            </div>
+            <!-- AFTER (redesign) -->
+            <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <p class="text-xs uppercase tracking-wider text-slate-400 mb-3 font-bold">After (redesign proposes)</p>
+              <pre class="mermaid">
+flowchart TD
+  M["sources.yaml"] --> P["Prefect: process_source()"]
+  P --> PA["Parser Seam<br/><em>PDF | DOCX | PPTX adapters</em>"]
+  PA --> SD["StructureDetector"]
+  SD --> TE["TableExtractor"]
+  TE --> CH["Chunker<br/><em>Ollama, content-type-aware</em>"]
+  CH --> MG["MetadataGenerator<br/><em>Ollama, universal schema</em>"]
+  MG --> N["Normalizer"]
+  N --> ES["Embed + Store"]
+  classDef deep stroke:#0f172a,stroke-width:3px,fill:#0f172a,color:#e2e8f0;
+  classDef seam stroke-dasharray:4 4,stroke:#059669,stroke-width:2px;
+  class P deep
+  class PA seam
+              </pre>
+              <p class="text-xs text-slate-500 mt-2">Parser seam is real (3 adapters). Prefect flow is one deep interface: call <code>process_source()</code>, everything else is implementation. Callers don't chain modules manually.</p>
+            </div>
+          </div>
+
+          <p class="text-sm font-bold text-slate-700 mb-1">Problem</p>
+          <p class="text-sm text-slate-600 mb-3">5 shallow modules with no orchestration seam — the caller (Jupyter notebook) IS the pipeline, and ISPAD logic leaks into 3 of the 5 modules.</p>
+
+          <p class="text-sm font-bold text-slate-700 mb-1">Solution</p>
+          <p class="text-sm text-slate-600 mb-3">Deepen into one <code>process_source(config)</code> interface. Parser seam with 3 adapters (PDF/DOCX/PPTX). Internal modules become implementation, not interface.</p>
+
+          <ul class="text-sm text-slate-600 space-y-1 mb-0">
+            <li>• <strong>Leverage:</strong> one interface, all document types</li>
+            <li>• <strong>Locality:</strong> format-specific bugs concentrate in adapters</li>
+            <li>• <strong>Interface shrinks:</strong> callers know config, not 5 module APIs</li>
+            <li>• <strong>Deletion test:</strong> deleting chapter_detector.py — 343 lines of ISPAD-specific complexity vanishes, zero callers affected by redesign</li>
+            <li>• <strong>Real seam:</strong> parser has 3 adapters — justifies the abstraction</li>
+          </ul>
+        </article>
+
+        <!-- ═══════ CANDIDATE 2 ═══════ -->
+        <article class="bg-white rounded-xl shadow-sm border border-slate-200 p-8">
+          <div class="flex items-center gap-3 mb-2">
+            <h2 class="text-xl font-serif font-bold">2. LLM Client Seam: Gemini → Ollama Migration</h2>
+            <span class="badge-strong text-xs font-mono px-2 py-0.5 rounded-full">Strong</span>
+          </div>
+
+          <p class="font-mono text-sm text-slate-500 mb-4">
+            chunker.py · metadata_generator.py · generate.py · evaluate.py
+          </p>
+
+          <div class="grid grid-cols-2 gap-6 mb-6">
+            <!-- BEFORE -->
+            <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <p class="text-xs uppercase tracking-wider text-slate-400 mb-3 font-bold">Before</p>
+              <!-- Mass diagram: interface vs implementation -->
+              <div class="space-y-3">
+                <div>
+                  <p class="text-xs font-mono text-slate-400 mb-1">chunker.py — LLM interface</p>
+                  <div class="flex gap-1">
+                    <div class="h-8 bg-red-200 border border-red-300 rounded flex items-center justify-center text-xs" style="width:90%">_call_gemini(): model, prompt, API key, retry, JSON parse</div>
+                  </div>
+                  <div class="flex gap-1 mt-1">
+                    <div class="h-8 bg-slate-200 border border-slate-300 rounded flex items-center justify-center text-xs" style="width:95%">Implementation: genai.GenerativeModel().generate_content()</div>
+                  </div>
+                  <p class="text-xs text-red-500 mt-1">↑ Shallow: interface ≈ implementation</p>
+                </div>
+                <div>
+                  <p class="text-xs font-mono text-slate-400 mb-1">generate.py — LLM interface</p>
+                  <div class="flex gap-1">
+                    <div class="h-8 bg-amber-200 border border-amber-300 rounded flex items-center justify-center text-xs" style="width:90%">ollama.chat(): different API, different model, different host</div>
+                  </div>
+                  <p class="text-xs text-amber-600 mt-1">↑ Different provider, incompatible interface</p>
+                </div>
+              </div>
+            </div>
+            <!-- AFTER -->
+            <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <p class="text-xs uppercase tracking-wider text-slate-400 mb-3 font-bold">After</p>
+              <pre class="mermaid">
+flowchart TD
+  subgraph "LLMClient seam"
+    I["LLMClient.chat(messages, model, temp)"]
+    I --> OA["OllamaAdapter"]
+    I -.-> GA["GeminiAdapter<br/><em>future</em>"]
+    I -.-> OAI["OpenAIAdapter<br/><em>future</em>"]
+  end
+  CH["Chunker"] --> I
+  MG["MetadataGen"] --> I
+  GN["Generator"] --> I
+  EV["Evaluator"] --> I
+  classDef deep stroke:#0f172a,stroke-width:3px,fill:#0f172a,color:#e2e8f0;
+  classDef seam stroke-dasharray:4 4,stroke:#059669,stroke-width:2px;
+  class I deep
+  class OA,GA,OAI seam
+              </pre>
+            </div>
+          </div>
+
+          <p class="text-sm font-bold text-slate-700 mb-1">Problem</p>
+          <p class="text-sm text-slate-600 mb-3">Two different LLM providers (Gemini, Ollama) used via different raw APIs in 4 modules. No seam — provider choice leaks into every module that needs LLM calls.</p>
+
+          <p class="text-sm font-bold text-slate-700 mb-1">Solution</p>
+          <p class="text-sm text-slate-600 mb-3">One <code>LLMClient</code> interface (~50 lines). <code>OllamaAdapter</code> now, future adapters are 20 lines each. The redesign's note on LLM abstraction is exactly right.</p>
+
+          <ul class="text-sm text-slate-600 space-y-1">
+            <li>• <strong>Leverage:</strong> 4 callers, 1 interface</li>
+            <li>• <strong>Locality:</strong> provider bugs/config in one adapter</li>
+            <li>• <strong>One adapter now, hypothetical seam —</strong> but Gemini was used 2 months ago, so 2 real adapters are plausible</li>
+            <li>• <strong>Deletion test:</strong> delete the seam → LLM setup code re-appears in 4 modules</li>
+          </ul>
+        </article>
+
+        <!-- ═══════ CANDIDATE 3 ═══════ -->
+        <article class="bg-white rounded-xl shadow-sm border border-slate-200 p-8">
+          <div class="flex items-center gap-3 mb-2">
+            <h2 class="text-xl font-serif font-bold">3. Embedding + Storage: Deepen into a Corpus Store Module</h2>
+            <span class="badge-worth text-xs font-mono px-2 py-0.5 rounded-full">Worth exploring</span>
+          </div>
+
+          <p class="font-mono text-sm text-slate-500 mb-4">
+            embedding.py · storage.py · kv_store.py
+          </p>
+
+          <div class="grid grid-cols-2 gap-6 mb-6">
+            <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <p class="text-xs uppercase tracking-wider text-slate-400 mb-3 font-bold">Before</p>
+              <pre class="mermaid">
+flowchart LR
+  E["EmbeddingGenerator<br/><em>93 lines</em>"] --> S["MilvusStorage<br/><em>182 lines</em>"]
+  K["KVStore<br/><em>115 lines, L3 dead path</em>"] -.-> S
+  R["Retriever"] --> E
+  R --> S
+  classDef shallow stroke-dasharray:4 4,stroke:#94a3b8;
+  classDef dead stroke:dotted,fill:#f8fafc,color:#94a3b8;
+  class K dead
+              </pre>
+              <p class="text-xs text-slate-500 mt-2">Retriever must know both EmbeddingGenerator and MilvusStorage interfaces. KVStore is dead weight (L3 hierarchy for a path that doesn't exist).</p>
+            </div>
+            <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <p class="text-xs uppercase tracking-wider text-slate-400 mb-3 font-bold">After</p>
+              <pre class="mermaid">
+flowchart LR
+  R["Retriever"] --> CS["CorpusStore<br/><em>embed + store + search</em>"]
+  CS --> M["Milvus<br/><em>dense + sparse</em>"]
+  CS --> BGE["BGE-M3<br/><em>internal</em>"]
+  classDef deep stroke:#0f172a,stroke-width:3px,fill:#0f172a,color:#e2e8f0;
+  class CS deep
+              </pre>
+              <p class="text-xs text-slate-500 mt-2">One interface: <code>store(chunks)</code> and <code>search(query, filters)</code>. Embedding model is implementation, not interface.</p>
+            </div>
+          </div>
+
+          <p class="text-sm font-bold text-slate-700 mb-1">Problem</p>
+          <p class="text-sm text-slate-600 mb-3">Retriever couples to both embedding and storage interfaces. KVStore is a dead module (L3 hierarchy support for a feature that was dropped). Embedding model choice leaks to callers.</p>
+
+          <p class="text-sm font-bold text-slate-700 mb-1">Solution</p>
+          <p class="text-sm text-slate-600 mb-3">Merge into one Corpus Store module. Interface: <code>store(chunks)</code>, <code>search(query, filters) → results</code>. Embedding model becomes implementation detail.</p>
+
+          <ul class="text-sm text-slate-600 space-y-1">
+            <li>• <strong>Leverage:</strong> retriever learns one interface, not two</li>
+            <li>• <strong>Locality:</strong> BGE-M3 switch happens in one place</li>
+            <li>• <strong>Delete KVStore:</strong> 115 lines of dead code vanish</li>
+            <li>• <strong>One adapter (Milvus):</strong> hypothetical seam — acceptable if you never swap vector DBs</li>
+          </ul>
+        </article>
+
+        <!-- ═══════ CANDIDATE 4 ═══════ -->
+        <article class="bg-white rounded-xl shadow-sm border border-slate-200 p-8">
+          <div class="flex items-center gap-3 mb-2">
+            <h2 class="text-xl font-serif font-bold">4. Kill the Notebook Orchestration Layer</h2>
+            <span class="badge-strong text-xs font-mono px-2 py-0.5 rounded-full">Strong</span>
+          </div>
+
+          <p class="font-mono text-sm text-slate-500 mb-4">
+            run_pdf_parser.ipynb · run_chapter_detection.ipynb · run_semantic_chunking.ipynb · run_metadata_generation.ipynb · run_normalization.ipynb · run_vector_storage.ipynb · run_atomic_extraction.ipynb
+          </p>
+
+          <div class="grid grid-cols-2 gap-6 mb-6">
+            <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <p class="text-xs uppercase tracking-wider text-slate-400 mb-3 font-bold">Before</p>
+              <!-- Cross-section: layers the call passes through -->
+              <div class="space-y-1">
+                <div class="h-10 border-l-4 border-red-400 bg-red-50 flex items-center px-3 text-xs rounded-r">run_pdf_parser.ipynb — manual cell execution</div>
+                <div class="h-10 border-l-4 border-red-400 bg-red-50 flex items-center px-3 text-xs rounded-r">run_chapter_detection.ipynb — manual cell execution</div>
+                <div class="h-10 border-l-4 border-red-400 bg-red-50 flex items-center px-3 text-xs rounded-r">run_semantic_chunking.ipynb — manual, waits for Gemini</div>
+                <div class="h-10 border-l-4 border-red-400 bg-red-50 flex items-center px-3 text-xs rounded-r">run_metadata_generation.ipynb — manual</div>
+                <div class="h-10 border-l-4 border-red-400 bg-red-50 flex items-center px-3 text-xs rounded-r">run_normalization.ipynb — manual</div>
+                <div class="h-10 border-l-4 border-red-400 bg-red-50 flex items-center px-3 text-xs rounded-r">run_vector_storage.ipynb — manual</div>
+                <div class="h-10 border-l-4 border-amber-400 bg-amber-50 flex items-center px-3 text-xs rounded-r">run_atomic_extraction.ipynb — L3, dead path</div>
+              </div>
+              <p class="text-xs text-red-500 mt-2">7 notebooks. Human operator IS the orchestration. Each notebook is a shallow wrapper around one src module call.</p>
+            </div>
+            <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <p class="text-xs uppercase tracking-wider text-slate-400 mb-3 font-bold">After</p>
+              <div class="space-y-1">
+                <div class="h-24 border-l-4 border-emerald-600 bg-emerald-50 flex items-center px-3 text-xs rounded-r font-bold" style="background: linear-gradient(135deg, #0f172a, #1e293b); color: #e2e8f0; border-color: #059669;">
+                  python -m src.pipeline.run<br/>→ process_manifest() → process_source() per document<br/>Retries, status tracking, logging — all implementation
+                </div>
+              </div>
+              <p class="text-xs text-emerald-600 mt-2">1 command. Deep module: massive behaviour behind one interface.</p>
+            </div>
+          </div>
+
+          <p class="text-sm font-bold text-slate-700 mb-1">Problem</p>
+          <p class="text-sm text-slate-600 mb-3">7 notebooks act as the pipeline orchestration layer. Each is a shallow pass-through — the interface (run cells in order) is as complex as the implementation (call one function).</p>
+
+          <p class="text-sm font-bold text-slate-700 mb-1">Solution</p>
+          <p class="text-sm text-slate-600 mb-3">Replace with Prefect flow or plain Python CLI. One command processes everything. Notebooks become optional exploration tools, not the pipeline.</p>
+
+          <ul class="text-sm text-slate-600 space-y-1">
+            <li>• <strong>Leverage:</strong> process any document set with one command</li>
+            <li>• <strong>Locality:</strong> pipeline logic in one flow, not 7 notebooks</li>
+            <li>• <strong>Deletion test:</strong> delete notebooks → zero logic lost (all in src/)</li>
+            <li>• <strong>Depth:</strong> retry, resume, status tracking — all hidden behind one interface</li>
+          </ul>
+        </article>
+
+        <!-- ═══════ CANDIDATE 5 ═══════ -->
+        <article class="bg-white rounded-xl shadow-sm border border-slate-200 p-8">
+          <div class="flex items-center gap-3 mb-2">
+            <h2 class="text-xl font-serif font-bold">5. Prompt Builder + Generator: One Generation Module</h2>
+            <span class="badge-worth text-xs font-mono px-2 py-0.5 rounded-full">Worth exploring</span>
+          </div>
+
+          <p class="font-mono text-sm text-slate-500 mb-4">
+            prompt_builder.py · generate.py
+          </p>
+
+          <div class="grid grid-cols-2 gap-6 mb-6">
+            <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <p class="text-xs uppercase tracking-wider text-slate-400 mb-3 font-bold">Before</p>
+              <pre class="mermaid">
+flowchart LR
+  A["app.py"] --> PB["PromptBuilder<br/><em>113 lines</em>"]
+  PB --> G["ResponseGenerator<br/><em>104 lines</em>"]
+  A --> G
+  classDef shallow stroke-dasharray:4 4,stroke:#94a3b8;
+  class PB shallow
+              </pre>
+              <p class="text-xs text-slate-500 mt-2">app.py must know both interfaces. PromptBuilder is shallow — string formatting behind a class interface.</p>
+            </div>
+            <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <p class="text-xs uppercase tracking-wider text-slate-400 mb-3 font-bold">After</p>
+              <pre class="mermaid">
+flowchart LR
+  A["app.py"] --> G["Generator<br/><em>generate(query, context, lang)</em>"]
+  G --> LLM["LLMClient seam"]
+  classDef deep stroke:#0f172a,stroke-width:3px,fill:#0f172a,color:#e2e8f0;
+  class G deep
+              </pre>
+              <p class="text-xs text-slate-500 mt-2">One interface. Prompt construction is implementation, not interface.</p>
+            </div>
+          </div>
+
+          <p class="text-sm font-bold text-slate-700 mb-1">Problem</p>
+          <p class="text-sm text-slate-600 mb-3">PromptBuilder is shallow — it formats strings. Its interface (build_prompt, _format_context, _build_system_prompt) is nearly as complex as its implementation. Caller must learn both PromptBuilder and Generator interfaces.</p>
+
+          <p class="text-sm font-bold text-slate-700 mb-1">Solution</p>
+          <p class="text-sm text-slate-600 mb-3">Merge into one Generator module. Interface: <code>generate(query, retrieved_chunks, language) → Response</code>. Prompt building becomes implementation.</p>
+
+          <ul class="text-sm text-slate-600 space-y-1">
+            <li>• <strong>Leverage:</strong> app.py calls one function</li>
+            <li>• <strong>Locality:</strong> prompt template changes don't leak to callers</li>
+            <li>• <strong>Deletion test:</strong> delete PromptBuilder → its logic moves into Generator, callers unaffected</li>
+          </ul>
+        </article>
+
+      </section>
+
+      <!-- ═══════ TOP RECOMMENDATION ═══════ -->
+      <section id="top-recommendation" class="bg-emerald-50 border-2 border-emerald-300 rounded-xl p-8">
+        <h2 class="text-xl font-serif font-bold text-emerald-800 mb-3">Top Recommendation: Fresh Start</h2>
+        <p class="text-sm text-slate-700 leading-relaxed mb-4">
+          All 5 candidates together touch <strong>every module in the codebase</strong>. The current architecture has:
+        </p>
+        <ul class="text-sm text-slate-700 space-y-1 mb-4">
+          <li>• <strong>No real seams</strong> — modules are serial, not pluggable</li>
+          <li>• <strong>~40% ISPAD-specific hardcoding</strong> that must be deleted</li>
+          <li>• <strong>Two incompatible LLM providers</strong> with no abstraction</li>
+          <li>• <strong>Notebook-driven orchestration</strong> — no programmatic pipeline</li>
+          <li>• <strong>No tests for vector, retrieval, or generation layers</strong></li>
+          <li>• <strong>Dead code</strong> (KVStore L3 paths, atomic extraction notebook)</li>
+        </ul>
+        <p class="text-sm text-slate-700 leading-relaxed mb-4">
+          The only modules with genuine reuse value are the <strong>data models</strong> (<code>PageContent</code>, <code>SemanticChunk</code>, <code>ChunkMetadata</code> — though all need schema changes) 
+          and some <strong>extraction logic</strong> from <code>pdf_extractor.py</code> (172 lines of clean PyMuPDF wrapping).
+        </p>
+        <p class="text-sm font-bold text-emerald-800">
+          Verdict: Start fresh in a new directory. Port the ~300 lines of reusable extraction logic. Build the new architecture from the redesign plan with proper seams from day one.
+          The iterative path would require modifying every file anyway, plus carrying the cognitive overhead of "which parts are old vs. new."
+        </p>
+      </section>
+
+      <!-- REWRITE RISK CALLOUT -->
+      <section class="bg-red-50 border border-red-200 rounded-lg p-6 mt-6">
+        <h3 class="text-sm font-bold text-red-800 mb-2">⚠️ Rewrite Risk Acknowledgement</h3>
+        <p class="text-sm text-slate-700">
+          Fresh starts carry the classic risk of losing embedded knowledge. In this case the risk is low: 
+          the codebase is small (2K lines), the redesign plan is comprehensive, and the ISPAD-specific logic is intentionally being discarded. 
+          The main knowledge to preserve is: PyMuPDF table extraction patterns, checkpoint/resume logic in chunker, and the regex patterns for dosage/recommendation detection.
+        </p>
+      </section>
+
+    </main>
+  </body>
+</html>
