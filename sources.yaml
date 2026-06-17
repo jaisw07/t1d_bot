@@ -1,0 +1,244 @@
+collections:
+  - content_type: guideline
+    id: ispad_2022
+    language: english
+    name: ISPAD 2022 Guidelines
+    sources:
+      - format: pdf
+        path: dataset/ISPAD-English-2022/Ch1-DefinitionEpidemiol.pdf
+        status: processed
+      - format: pdf
+        path: dataset/ISPAD-English-2022/ch2pediatricdiabetes-2.pdf
+        status: pending
+      - format: pdf
+        path: dataset/ISPAD-English-2022/Ch6-PediatricDiabetes.pdf
+        status: pending
+      - format: pdf
+        path: dataset/ISPAD-English-2022/Ch7PediatricDiabetes-2022.pdf
+        status: pending
+      - format: pdf
+        path: dataset/ISPAD-English-2022/Ch8-PediatricDiabetes.pdf
+        status: pending
+      - format: pdf
+        path: dataset/ISPAD-English-2022/Ch9-InsulinISPAD2022.pdf
+        status: pending
+      - format: pdf
+        path: dataset/ISPAD-English-2022/Ch10PediatricDiabetes-2.pdf
+        status: pending
+      - format: pdf
+        path: dataset/ISPAD-English-2022/Ch11PediatricDiabetes.pdf
+        status: pending
+      - format: pdf
+        path: dataset/ISPAD-English-2022/Ch12-PediatricDiabetes.pdf
+        status: pending
+      - format: pdf
+        path: dataset/ISPAD-English-2022/Ch13PediatricDiabetes-2.pdf
+        status: pending
+      - format: pdf
+        path: dataset/ISPAD-English-2022/Ch14-PediatricDiabetes.pdf
+        status: pending
+      - format: pdf
+        path: dataset/ISPAD-English-2022/Ch15PediatricDiabetes-2.pdf
+        status: pending
+      - format: pdf
+        path: dataset/ISPAD-English-2022/Ch16-Technologyglucosem.pdf
+        status: pending
+      - format: pdf
+        path: dataset/ISPAD-English-2022/Ch17PediatricDiabetes-2.pdf
+        status: pending
+      - format: pdf
+        path: dataset/ISPAD-English-2022/ch21pediatricdiabetes.pdf
+        status: pending
+      - format: pdf
+        path: dataset/ISPAD-English-2022/Chapter22PediatricDiabet.pdf
+        status: pending
+      - format: pdf
+        path: dataset/ISPAD-English-2022/Chapt23PediatricDiabetes.pdf
+        status: pending
+      - format: pdf
+        path: dataset/ISPAD-English-2022/Ch24-PediatricDiabetes.pdf
+        status: pending
+      - format: pdf
+        path: dataset/ISPAD-English-2022/Ch25-LimitedResourcesI.pdf
+        status: pending
+
+  - content_type: patient_education
+    id: understanding_diabetes
+    language: english
+    name: Understanding Diabetes Series
+    sources:
+      - format: pdf
+        path: dataset/understanding diabetes/ud01.pdf
+        status: pending
+      - format: pdf
+        path: dataset/understanding diabetes/ud02.pdf
+        status: pending
+      - format: pdf
+        path: dataset/understanding diabetes/ud03.pdf
+        status: pending
+      # - format: pdf
+      #   path: dataset/understanding diabetes/ud04.pdf
+      #   status: pending
+      - format: pdf
+        path: dataset/understanding diabetes/ud05.pdf
+        status: pending
+      - format: pdf
+        path: dataset/understanding diabetes/ud06.pdf
+        status: pending
+      - format: pdf
+        path: dataset/understanding diabetes/ud07.pdf
+        status: pending
+      - format: pdf
+        path: dataset/understanding diabetes/ud08.pdf
+        status: pending
+      - format: pdf
+        path: dataset/understanding diabetes/ud09.pdf
+        status: pending
+      - format: pdf
+        path: dataset/understanding diabetes/ud10.pdf
+        status: pending
+      - format: pdf
+        path: dataset/understanding diabetes/ud11.pdf
+        status: pending
+      - format: pdf
+        path: dataset/understanding diabetes/ud12.pdf
+        status: pending
+      - format: pdf
+        path: dataset/understanding diabetes/ud13.pdf
+        status: pending
+      - format: pdf
+        path: dataset/understanding diabetes/ud14.pdf
+        status: pending
+      - format: pdf
+        path: dataset/understanding diabetes/ud15.pdf
+        status: pending
+      - format: pdf
+        path: dataset/understanding diabetes/ud16.pdf
+        status: pending
+      - format: pdf
+        path: dataset/understanding diabetes/ud17.pdf
+        status: pending
+      - format: pdf
+        path: dataset/understanding diabetes/ud18.pdf
+        status: pending
+      - format: pdf
+        path: dataset/understanding diabetes/ud19.pdf
+        status: pending
+      - format: pdf
+        path: dataset/understanding diabetes/ud21.pdf
+        status: pending
+      - format: pdf
+        path: dataset/understanding diabetes/ud22.pdf
+        status: pending
+      - format: pdf
+        path: dataset/understanding diabetes/ud23.pdf
+        status: pending
+      - format: pdf
+        path: dataset/understanding diabetes/ud24.pdf
+        status: pending
+      - format: pdf
+        path: dataset/understanding diabetes/ud25.pdf
+        status: pending
+      - format: pdf
+        path: dataset/understanding diabetes/ud26.pdf
+        status: pending
+      - format: pdf
+        path: dataset/understanding diabetes/ud27.pdf
+        status: pending
+      - format: pdf
+        path: dataset/understanding diabetes/ud28.pdf
+        status: pending
+      # - format: pdf
+      #   path: dataset/understanding diabetes/ud29.pdf
+      #   status: pending
+
+  # - content_type: textbook
+  #   id: williams_endo
+  #   language: english
+  #   name: Williams Endocrinology
+  #   sources:
+  #     - format: pdf
+  #       include_pages: 850-920,1100-1180
+  #       path: dataset/Williams Endocrinology (2)New Edition.pdf
+  #       status: pending
+
+  - content_type: patient_education
+    id: hindi_booklet
+    language: hindi
+    name: Hindi Patient Booklet
+    sources:
+      - format: pdf
+        include_pages: 4-44
+        path: dataset/Final Hindi booklet.pdf
+        status: pending
+
+  - content_type: patient_education
+    id: ward_education
+    language: english
+    name: Diabetes Ward Education
+    sources:
+      - format: docx
+        path: dataset/diabetes education full for ward  18.8.15.docx
+        status: processed
+
+  - content_type: guideline
+    id: rssdi_nutrition
+    language: english
+    name: RSSDI Nutrition Guidelines
+    sources:
+      - format: pdf
+        include_pages: 9-121
+        path: dataset/RSSDI Nutrition guideliens_PrintPDF.pdf
+        status: pending
+
+  # - content_type: textbook
+  #   id: sperling_ped_endo
+  #   language: english
+  #   name: Sperling Pediatric Endocrinology
+  #   sources:
+  #     - format: pdf
+  #       include_pages: TBD
+  #       path: dataset/Sperling Pediatric Endocrinology  5th ed  2021.pdf
+  #       status: pending
+
+  # - content_type: textbook
+  #   id: brooks_ped_endo
+  #   language: english
+  #   name: Brooks Pediatric Endocrinology
+  #   sources:
+  #     - format: pdf
+  #       include_pages: TBD
+  #       path: dataset/Brooks Ped Endcrinology 7th Edn.pdf
+  #       status: pending
+
+  - content_type: patient_education
+    id: carb_counting
+    language: english
+    name: Carb Counting Guide
+    sources:
+      - format: pdf
+        include_pages: 4-73
+        path: dataset/Nutrition basics and a quick guide to carbohydrate counting.pdf
+        status: pending
+
+  - content_type: patient_education
+    id: dsmes_modules
+    language: english
+    name: DSMES Education Modules
+    sources:
+      - format: pptx
+        path: dataset/DSMES Modules/Admission and Discharge teaching.pptx
+        status: processed
+      - format: pptx
+        path: dataset/DSMES Modules/NEW DSMES Session 1.pptx
+        status: pending
+      - format: pptx
+        path: dataset/DSMES Modules/NEW DSMES Session 2.pptx
+        status: pending
+      - format: pptx
+        path: dataset/DSMES Modules/NEW DSMES Session 3.pptx
+        status: pending
+
+defaults:
+  chunking_model: ${CHUNKING_MODEL}
+  metadata_model: ${METADATA_MODEL}
