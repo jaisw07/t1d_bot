@@ -6,7 +6,7 @@ collections:
     sources:
       - format: pdf
         path: dataset/ISPAD-English-2022/Ch1-DefinitionEpidemiol.pdf
-        status: processed
+        status: pending
       - format: pdf
         path: dataset/ISPAD-English-2022/ch2pediatricdiabetes-2.pdf
         status: pending
@@ -179,7 +179,7 @@ collections:
     sources:
       - format: docx
         path: dataset/diabetes education full for ward  18.8.15.docx
-        status: processed
+        status: pending
 
   - content_type: guideline
     id: rssdi_nutrition
@@ -228,7 +228,7 @@ collections:
     sources:
       - format: pptx
         path: dataset/DSMES Modules/Admission and Discharge teaching.pptx
-        status: processed
+        status: pending
       - format: pptx
         path: dataset/DSMES Modules/NEW DSMES Session 1.pptx
         status: pending
