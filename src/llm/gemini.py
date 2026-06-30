@@ -11,7 +11,7 @@ class GeminiAdapter(LLMClient):
             http_options={"base_url": "https://omnikey-ai-unified-key-manager.onrender.com"}
         )
 
-    def chat(self, messages: list[dict], model: str, temperature: float = 0.1) -> str:
+    def chat(self, messages: list[dict], model: str, temperature: float = 0.1, max_tokens: int = None) -> str:
         system_instruction = "\n".join([m["content"] for m in messages if m["role"] == "system"])
         if not system_instruction:
             system_instruction = None
@@ -30,7 +30,8 @@ class GeminiAdapter(LLMClient):
 
         config = types.GenerateContentConfig(
             system_instruction=system_instruction,
-            temperature=temperature
+            temperature=temperature,
+            max_output_tokens=max_tokens
         )
 
         response = self._client.models.generate_content(

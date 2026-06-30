@@ -12,7 +12,7 @@ class RealBgem3Embedder:
         if self.model is None:
             print(f"[INFO] Initializing BGE-M3 model ({self.model_name})...")
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
-            self.model = AutoModelForMaskedLM.from_pretrained(self.model_name)
+            self.model = AutoModelForMaskedLM.from_pretrained(self.model_name, use_safetensors=True)
             self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
             self.model.to(self.device)
             self.model.eval()

@@ -114,13 +114,19 @@ class PDFParser(DocumentParser):
                 except Exception as e:
                     print(f"[WARN] Table extraction failed on page {page_idx}: {e}")
             
-            # Page-level KrutiDev conversion for Hindi
+            # Page-level KrutiDev or scrambled Devanagari conversion for Hindi
             if language == "hindi":
                 all_text = " ".join(b.text for b in text_blocks)
                 if not has_devanagari(all_text) and is_likely_krutidev(all_text):
                     for b in text_blocks:
                         b.text = krutidev_to_unicode(b.text)
                     tables_out = [krutidev_to_unicode(t) for t in tables_out]
+                else:
+                    from src.ingestion.hindi_decoder import is_scrambled_hindi, decode_hindi_text
+                    if is_scrambled_hindi(all_text):
+                        for b in text_blocks:
+                            b.text = decode_hindi_text(b.text)
+                        tables_out = [decode_hindi_text(t) for t in tables_out]
 
             pages_out.append(DocumentPage(
                 page_number=page_idx,

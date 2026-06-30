@@ -140,10 +140,8 @@ class Chunker:
 
             prompt = prompt_template.format(input_text=cleaned)
             messages = [{"role": "user", "content": prompt}]
-            
-            raw_response = self.llm.chat(messages, model=self.model, temperature=0.1)
-            
             try:
+                raw_response = self.llm.chat(messages, model=self.model, temperature=0.1)
                 llm_chunks = safe_json_loads(raw_response)
             except Exception as e:
                 print(f"[ERROR] Failed to chunk section '{section.title}': {e}")

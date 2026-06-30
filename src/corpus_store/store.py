@@ -51,7 +51,10 @@ class CorpusStore:
         # Connect to Milvus Client
         host = os.getenv("MILVUS_HOST", "localhost")
         port = os.getenv("MILVUS_PORT", "19530")
-        self.client = MilvusClient(uri=f"http://{host}:{port}")
+        if host.endswith(".db"):
+            self.client = MilvusClient(uri=host)
+        else:
+            self.client = MilvusClient(uri=f"http://{host}:{port}")
         
         self._init_collection()
 

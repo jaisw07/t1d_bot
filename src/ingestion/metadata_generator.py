@@ -82,7 +82,7 @@ class MetadataGenerator:
         messages = [{"role": "user", "content": prompt}]
         
         try:
-            raw_response = self.llm.chat(messages, model=self.model, temperature=0.1)
+            raw_response = self.llm.chat(messages, model=self.model, temperature=0.1, max_tokens=150)
             parsed = safe_json_loads(raw_response)
             topic = parsed.get("topic", "general").strip().lower()
             keywords = parsed.get("keywords", [])
