@@ -4,7 +4,7 @@ from src.ingestion.structure_detector import StructureDetector, Section
 
 def test_structure_detector_pdf_pages():
     # Arrange
-    pdf_path = "dataset/ISPAD-English-2022/Ch1-DefinitionEpidemiol.pdf"
+    pdf_path = "dataset/guidelines/ispad_2022/Ch1-DefinitionEpidemiol.pdf"
     assert os.path.exists(pdf_path)
     
     parser = PDFParser()

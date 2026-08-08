@@ -1,0 +1,36 @@
+Since  /user-home  inside your container is mapped directly to your home directory ( ~/ ) on the headnode, you can copy the files directly from your
+  local Windows laptop using  scp  and then copy them inside the container.
+
+  This avoids any terminal copy-paste formatting issues. Here is how to do it:
+  ──────
+  ### Step 1: Upload from your Local Laptop
+
+  Open a new command prompt/terminal on your local Windows laptop (navigate to  C:\Users\SHREY\Desktop\t1d_bot  if you aren't there) and copy the modified
+  files to the headnode:
+
+    scp requirements.txt src/llm/client.py src/llm/ollama.py src/llm/gemini.py src/ingestion/metadata_generator.py dgx-s-bmu-soet-230512@10.1.0.176:~/
+    ──────
+  ### Step 2: Copy the files inside the Container
+
+  Now, switch back to your GPU pod container terminal ( root@gpu-interactive:/workspace/t1d_bot# ) and run:
+
+  1. Kill any running jobs:
+    kill -9 1048 1113
+
+  2. Copy the files from the mounted  /user-home  directory to the workspace:
+    cp /user-home/requirements.txt /workspace/t1d_bot/
+    cp /user-home/client.py /workspace/t1d_bot/src/llm/
+    cp /user-home/ollama.py /workspace/t1d_bot/src/llm/
+    cp /user-home/gemini.py /workspace/t1d_bot/src/llm/
+    cp /user-home/metadata_generator.py /workspace/t1d_bot/src/ingestion/
+
+  3. Reset the statuses and clean up the database:
+    sed -i 's/status: error/status: pending/g' sources.yaml
+    sed -i 's/status: processed/status: pending/g' sources.yaml
+    rm -f t1d_corpus.db
+
+  4. Restart the smoke test in the background:
+    nohup venv/bin/python -m src.pipeline.run --smoke-test > pipeline.log 2>&1 &
+
+  5. Monitor the logs:
+    tail -f pipeline.log

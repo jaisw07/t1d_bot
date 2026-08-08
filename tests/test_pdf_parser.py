@@ -4,7 +4,7 @@ from src.ingestion.parsers.base import DocumentPage
 
 def test_pdf_parser_basic_extraction():
     # Arrange
-    pdf_path = "dataset/ISPAD-English-2022/Ch1-DefinitionEpidemiol.pdf"
+    pdf_path = "dataset/guidelines/ispad_2022/Ch1-DefinitionEpidemiol.pdf"
     assert os.path.exists(pdf_path), f"Test PDF file not found at {pdf_path}"
     
     parser = PDFParser()
@@ -27,7 +27,7 @@ def test_pdf_parser_basic_extraction():
     assert isinstance(block.is_bold, bool)
 
 def test_pdf_parser_page_filtering():
-    pdf_path = "dataset/ISPAD-English-2022/Ch1-DefinitionEpidemiol.pdf"
+    pdf_path = "dataset/guidelines/ispad_2022/Ch1-DefinitionEpidemiol.pdf"
     parser = PDFParser()
     
     # Act
@@ -41,7 +41,7 @@ def test_pdf_parser_hindi_krutidev_page():
     """Page 1 is KrutiDev — should be converted to Devanagari."""
     from src.ingestion.krutidev import has_devanagari
     parser = PDFParser()
-    pages = parser.parse("dataset/Final Hindi booklet.pdf", include_pages="1", language="hindi")
+    pages = parser.parse("dataset/patient_education/hindi/final_hindi_booklet.pdf", include_pages="1", language="hindi")
     assert len(pages) == 1
     text = " ".join(b.text for b in pages[0].text_blocks)
     assert has_devanagari(text)
@@ -50,8 +50,7 @@ def test_pdf_parser_hindi_unicode_page():
     """Page 4 is native Unicode — should not be corrupted."""
     from src.ingestion.krutidev import has_devanagari
     parser = PDFParser()
-    pages = parser.parse("dataset/Final Hindi booklet.pdf", include_pages="4", language="hindi")
+    pages = parser.parse("dataset/patient_education/hindi/final_hindi_booklet.pdf", include_pages="4", language="hindi")
     text = " ".join(b.text for b in pages[0].text_blocks)
     assert has_devanagari(text)  # Mangal Hindi preserved
     assert "?" in text or "." in text  # Punctuation not mangled
-

@@ -4,7 +4,7 @@ from src.ingestion.parsers.base import DocumentPage
 
 def test_docx_parser_basic_extraction():
     # Arrange
-    docx_path = "dataset/diabetes education full for ward  18.8.15.docx"
+    docx_path = "dataset/patient_education/english/ward_education_guide.docx"
     assert os.path.exists(docx_path), f"Test DOCX file not found at {docx_path}"
     
     parser = DocxParser()

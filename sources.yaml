@@ -5,61 +5,61 @@ collections:
     name: ISPAD 2022 Guidelines
     sources:
       - format: pdf
-        path: dataset/ISPAD-English-2022/Ch1-DefinitionEpidemiol.pdf
+        path: dataset/guidelines/ispad_2022/Ch1-DefinitionEpidemiol.pdf
         status: pending
       - format: pdf
-        path: dataset/ISPAD-English-2022/ch2pediatricdiabetes-2.pdf
+        path: dataset/guidelines/ispad_2022/ch2pediatricdiabetes-2.pdf
         status: pending
       - format: pdf
-        path: dataset/ISPAD-English-2022/Ch6-PediatricDiabetes.pdf
+        path: dataset/guidelines/ispad_2022/Ch6-PediatricDiabetes.pdf
         status: pending
       - format: pdf
-        path: dataset/ISPAD-English-2022/Ch7PediatricDiabetes-2022.pdf
+        path: dataset/guidelines/ispad_2022/Ch7PediatricDiabetes-2022.pdf
         status: pending
       - format: pdf
-        path: dataset/ISPAD-English-2022/Ch8-PediatricDiabetes.pdf
+        path: dataset/guidelines/ispad_2022/Ch8-PediatricDiabetes.pdf
         status: pending
       - format: pdf
-        path: dataset/ISPAD-English-2022/Ch9-InsulinISPAD2022.pdf
+        path: dataset/guidelines/ispad_2022/Ch9-InsulinISPAD2022.pdf
         status: pending
       - format: pdf
-        path: dataset/ISPAD-English-2022/Ch10PediatricDiabetes-2.pdf
+        path: dataset/guidelines/ispad_2022/Ch10PediatricDiabetes-2.pdf
         status: pending
       - format: pdf
-        path: dataset/ISPAD-English-2022/Ch11PediatricDiabetes.pdf
+        path: dataset/guidelines/ispad_2022/Ch11PediatricDiabetes.pdf
         status: pending
       - format: pdf
-        path: dataset/ISPAD-English-2022/Ch12-PediatricDiabetes.pdf
+        path: dataset/guidelines/ispad_2022/Ch12-PediatricDiabetes.pdf
         status: pending
       - format: pdf
-        path: dataset/ISPAD-English-2022/Ch13PediatricDiabetes-2.pdf
+        path: dataset/guidelines/ispad_2022/Ch13PediatricDiabetes-2.pdf
         status: pending
       - format: pdf
-        path: dataset/ISPAD-English-2022/Ch14-PediatricDiabetes.pdf
+        path: dataset/guidelines/ispad_2022/Ch14-PediatricDiabetes.pdf
         status: pending
       - format: pdf
-        path: dataset/ISPAD-English-2022/Ch15PediatricDiabetes-2.pdf
+        path: dataset/guidelines/ispad_2022/Ch15PediatricDiabetes-2.pdf
         status: pending
       - format: pdf
-        path: dataset/ISPAD-English-2022/Ch16-Technologyglucosem.pdf
+        path: dataset/guidelines/ispad_2022/Ch16-Technologyglucosem.pdf
         status: pending
       - format: pdf
-        path: dataset/ISPAD-English-2022/Ch17PediatricDiabetes-2.pdf
+        path: dataset/guidelines/ispad_2022/Ch17PediatricDiabetes-2.pdf
         status: pending
       - format: pdf
-        path: dataset/ISPAD-English-2022/ch21pediatricdiabetes.pdf
+        path: dataset/guidelines/ispad_2022/ch21pediatricdiabetes.pdf
         status: pending
       - format: pdf
-        path: dataset/ISPAD-English-2022/Chapter22PediatricDiabet.pdf
+        path: dataset/guidelines/ispad_2022/Chapter22PediatricDiabet.pdf
         status: pending
       - format: pdf
-        path: dataset/ISPAD-English-2022/Chapt23PediatricDiabetes.pdf
+        path: dataset/guidelines/ispad_2022/Chapt23PediatricDiabetes.pdf
         status: pending
       - format: pdf
-        path: dataset/ISPAD-English-2022/Ch24-PediatricDiabetes.pdf
+        path: dataset/guidelines/ispad_2022/Ch24-PediatricDiabetes.pdf
         status: pending
       - format: pdf
-        path: dataset/ISPAD-English-2022/Ch25-LimitedResourcesI.pdf
+        path: dataset/guidelines/ispad_2022/Ch25-LimitedResourcesI.pdf
         status: pending
 
   - content_type: patient_education
@@ -68,88 +68,88 @@ collections:
     name: Understanding Diabetes Series
     sources:
       - format: pdf
-        path: dataset/understanding diabetes/ud01.pdf
+        path: dataset/patient_education/understanding_diabetes/ud01.pdf
         status: pending
       - format: pdf
-        path: dataset/understanding diabetes/ud02.pdf
+        path: dataset/patient_education/understanding_diabetes/ud02.pdf
         status: pending
       - format: pdf
-        path: dataset/understanding diabetes/ud03.pdf
+        path: dataset/patient_education/understanding_diabetes/ud03.pdf
         status: pending
       # - format: pdf
-      #   path: dataset/understanding diabetes/ud04.pdf
+      #   path: dataset/patient_education/understanding_diabetes/ud04.pdf
       #   status: pending
       - format: pdf
-        path: dataset/understanding diabetes/ud05.pdf
+        path: dataset/patient_education/understanding_diabetes/ud05.pdf
         status: pending
       - format: pdf
-        path: dataset/understanding diabetes/ud06.pdf
+        path: dataset/patient_education/understanding_diabetes/ud06.pdf
         status: pending
       - format: pdf
-        path: dataset/understanding diabetes/ud07.pdf
+        path: dataset/patient_education/understanding_diabetes/ud07.pdf
         status: pending
       - format: pdf
-        path: dataset/understanding diabetes/ud08.pdf
+        path: dataset/patient_education/understanding_diabetes/ud08.pdf
         status: pending
       - format: pdf
-        path: dataset/understanding diabetes/ud09.pdf
+        path: dataset/patient_education/understanding_diabetes/ud09.pdf
         status: pending
       - format: pdf
-        path: dataset/understanding diabetes/ud10.pdf
+        path: dataset/patient_education/understanding_diabetes/ud10.pdf
         status: pending
       - format: pdf
-        path: dataset/understanding diabetes/ud11.pdf
+        path: dataset/patient_education/understanding_diabetes/ud11.pdf
         status: pending
       - format: pdf
-        path: dataset/understanding diabetes/ud12.pdf
+        path: dataset/patient_education/understanding_diabetes/ud12.pdf
         status: pending
       - format: pdf
-        path: dataset/understanding diabetes/ud13.pdf
+        path: dataset/patient_education/understanding_diabetes/ud13.pdf
         status: pending
       - format: pdf
-        path: dataset/understanding diabetes/ud14.pdf
+        path: dataset/patient_education/understanding_diabetes/ud14.pdf
         status: pending
       - format: pdf
-        path: dataset/understanding diabetes/ud15.pdf
+        path: dataset/patient_education/understanding_diabetes/ud15.pdf
         status: pending
       - format: pdf
-        path: dataset/understanding diabetes/ud16.pdf
+        path: dataset/patient_education/understanding_diabetes/ud16.pdf
         status: pending
       - format: pdf
-        path: dataset/understanding diabetes/ud17.pdf
+        path: dataset/patient_education/understanding_diabetes/ud17.pdf
         status: pending
       - format: pdf
-        path: dataset/understanding diabetes/ud18.pdf
+        path: dataset/patient_education/understanding_diabetes/ud18.pdf
         status: pending
       - format: pdf
-        path: dataset/understanding diabetes/ud19.pdf
+        path: dataset/patient_education/understanding_diabetes/ud19.pdf
         status: pending
       - format: pdf
-        path: dataset/understanding diabetes/ud21.pdf
+        path: dataset/patient_education/understanding_diabetes/ud21.pdf
         status: pending
       - format: pdf
-        path: dataset/understanding diabetes/ud22.pdf
+        path: dataset/patient_education/understanding_diabetes/ud22.pdf
         status: pending
       - format: pdf
-        path: dataset/understanding diabetes/ud23.pdf
+        path: dataset/patient_education/understanding_diabetes/ud23.pdf
         status: pending
       - format: pdf
-        path: dataset/understanding diabetes/ud24.pdf
+        path: dataset/patient_education/understanding_diabetes/ud24.pdf
         status: pending
       - format: pdf
-        path: dataset/understanding diabetes/ud25.pdf
+        path: dataset/patient_education/understanding_diabetes/ud25.pdf
         status: pending
       - format: pdf
-        path: dataset/understanding diabetes/ud26.pdf
+        path: dataset/patient_education/understanding_diabetes/ud26.pdf
         status: pending
       - format: pdf
-        path: dataset/understanding diabetes/ud27.pdf
+        path: dataset/patient_education/understanding_diabetes/ud27.pdf
         status: pending
       - format: pdf
-        path: dataset/understanding diabetes/ud28.pdf
+        path: dataset/patient_education/understanding_diabetes/ud28.pdf
         status: pending
       # - format: pdf
-      #   path: dataset/understanding diabetes/ud29.pdf
+      #   path: dataset/patient_education/understanding_diabetes/ud29.pdf
       #   status: pending
 
   # - content_type: textbook
@@ -159,7 +159,7 @@ collections:
   #   sources:
   #     - format: pdf
   #       include_pages: 850-920,1100-1180
-  #       path: dataset/Williams Endocrinology (2)New Edition.pdf
+  #       path: dataset/textbooks/williams_endocrinology_new.pdf
   #       status: pending
 
   - content_type: patient_education
@@ -169,7 +169,7 @@ collections:
     sources:
       - format: pdf
         include_pages: 4-44
-        path: dataset/Final Hindi booklet.pdf
+        path: dataset/patient_education/hindi/final_hindi_booklet.pdf
         status: pending
 
   - content_type: patient_education
@@ -178,7 +178,7 @@ collections:
     name: Diabetes Ward Education
     sources:
       - format: docx
-        path: dataset/diabetes education full for ward  18.8.15.docx
+        path: dataset/patient_education/english/ward_education_guide.docx
         status: pending
 
   - content_type: guideline
@@ -188,7 +188,7 @@ collections:
     sources:
       - format: pdf
         include_pages: 9-121
-        path: dataset/RSSDI Nutrition guideliens_PrintPDF.pdf
+        path: dataset/guidelines/rssdi_nutrition_guidelines.pdf
         status: pending
 
   # - content_type: textbook
@@ -198,7 +198,7 @@ collections:
   #   sources:
   #     - format: pdf
   #       include_pages: TBD
-  #       path: dataset/Sperling Pediatric Endocrinology  5th ed  2021.pdf
+  #       path: dataset/textbooks/sperling_pediatric_endocrinology_5th_2021.pdf
   #       status: pending
 
   # - content_type: textbook
@@ -208,7 +208,7 @@ collections:
   #   sources:
   #     - format: pdf
   #       include_pages: TBD
-  #       path: dataset/Brooks Ped Endcrinology 7th Edn.pdf
+  #       path: dataset/textbooks/brooks_pediatric_endocrinology_7th.pdf
   #       status: pending
 
   - content_type: patient_education
@@ -218,7 +218,7 @@ collections:
     sources:
       - format: pdf
         include_pages: 4-73
-        path: dataset/Nutrition basics and a quick guide to carbohydrate counting.pdf
+        path: dataset/patient_education/english/carb_counting_guide.pdf
         status: pending
 
   - content_type: patient_education
@@ -227,16 +227,16 @@ collections:
     name: DSMES Education Modules
     sources:
       - format: pptx
-        path: dataset/DSMES Modules/Admission and Discharge teaching.pptx
+        path: dataset/patient_education/dsmes_modules/Admission and Discharge teaching.pptx
         status: pending
       - format: pptx
-        path: dataset/DSMES Modules/NEW DSMES Session 1.pptx
+        path: dataset/patient_education/dsmes_modules/NEW DSMES Session 1.pptx
         status: pending
       - format: pptx
-        path: dataset/DSMES Modules/NEW DSMES Session 2.pptx
+        path: dataset/patient_education/dsmes_modules/NEW DSMES Session 2.pptx
         status: pending
       - format: pptx
-        path: dataset/DSMES Modules/NEW DSMES Session 3.pptx
+        path: dataset/patient_education/dsmes_modules/NEW DSMES Session 3.pptx
         status: pending
 
 defaults:
