@@ -13,7 +13,13 @@ class MockEmbedder:
     def embed_query(self, text: str):
         return self.embed_text(text)
 
-def test_corpus_store_upsert_and_search():
+def test_corpus_store_upsert_and_search(monkeypatch, tmp_path):
+    import os
+    if os.name == "nt":
+        os.rename = os.replace
+    db_file = tmp_path / "test_corpus.db"
+    monkeypatch.setenv("MILVUS_HOST", str(db_file))
+    
     # Arrange
     metadata = ChunkMetadata(
         source_document="test_doc.pdf",

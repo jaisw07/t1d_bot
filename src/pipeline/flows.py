@@ -125,8 +125,8 @@ def embed_and_store(jsonl_path: str, collection_name: str) -> int:
 
 @flow(name="process-source")
 def process_source(source_config: dict, collection_config: dict) -> int:
-    chunking_model = os.getenv("CHUNKING_MODEL", "gemma4:e4b")
-    metadata_model = os.getenv("METADATA_MODEL", "gemma4:e4b")
+    chunking_model = os.getenv("CHUNKING_MODEL", "qwen2.5:3b")
+    metadata_model = os.getenv("METADATA_MODEL", "qwen2.5:3b")
     milvus_collection = os.getenv("MILVUS_COLLECTION", "t1d_corpus")
     
     pages = parse_document(source_config, language=collection_config.get("language", "english"))

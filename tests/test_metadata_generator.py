@@ -2,7 +2,7 @@ from src.llm.client import LLMClient
 from src.ingestion.metadata_generator import MetadataGenerator, ChunkMetadata
 
 class MockLLMClient(LLMClient):
-    def chat(self, messages: list[dict], model: str, temperature: float = 0.1) -> str:
+    def chat(self, messages: list[dict], model: str, temperature: float = 0.1, max_tokens: int = None) -> str:
         # Return valid metadata JSON
         return '```json\n{\n  "topic": "hypoglycemia",\n  "keywords": ["low blood sugar", "glucagon"]\n}\n```'
 

@@ -1,7 +1,7 @@
 import json
 import os
 from dataclasses import dataclass
-from pymilvus import MilvusClient, DataType, RRFRanker, AnnSearchRequest
+from pymilvus import MilvusClient, DataType
 from src.ingestion.chunker import Chunk
 from .schema import get_milvus_schema
 
@@ -49,7 +49,13 @@ class CorpusStore:
             self.embedder = embedder
         
         # Connect to Milvus Client
-        host = os.getenv("MILVUS_HOST", "localhost")
+        host = os.getenv("MILVUS_HOST")
+        if not host:
+            if os.path.exists("t1d_corpus.db"):
+                host = "t1d_corpus.db"
+            else:
+                host = "localhost"
+
         port = os.getenv("MILVUS_PORT", "19530")
         if host.endswith(".db"):
             self.client = MilvusClient(uri=host)
@@ -155,28 +161,11 @@ class CorpusStore:
         filters: dict | None = None,
         top_k: int = 5
     ) -> list[SearchResult]:
-        """Embed query, run BGE-M3 hybrid search with metadata filters, return results."""
+        """Embed query, run dense-only cosine search with metadata filters, return results."""
         # Ensure collection is loaded before search
         self.client.load_collection(collection_name=self.collection_name)
-        dense_query, sparse_query = self.embedder.embed_query(query)
+        dense_query, _ = self.embedder.embed_query(query)
         expr = build_expr(filters)
-        expr_str = expr if expr else None
-        
-        req_dense = AnnSearchRequest(
-            data=[dense_query],
-            anns_field="dense_embedding",
-            param={"metric_type": "COSINE", "params": {}},
-            limit=top_k,
-            expr=expr_str
-        )
-        
-        req_sparse = AnnSearchRequest(
-            data=[sparse_query],
-            anns_field="sparse_embedding",
-            param={"metric_type": "IP", "params": {}},
-            limit=top_k,
-            expr=expr_str
-        )
         
         output_fields = [
             "text", "source_document", "collection", "content_type", 
@@ -184,12 +173,14 @@ class CorpusStore:
             "keywords", "contains_dosage", "contains_recommendation"
         ]
         
-        res = self.client.hybrid_search(
+        res = self.client.search(
             collection_name=self.collection_name,
-            reqs=[req_dense, req_sparse],
-            ranker=RRFRanker(),
+            data=[dense_query],
+            anns_field="dense_embedding",
+            filter=expr or "",
             limit=top_k,
-            output_fields=output_fields
+            output_fields=output_fields,
+            search_params={"metric_type": "COSINE", "params": {}}
         )
         
         search_results = []

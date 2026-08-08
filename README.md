@@ -55,39 +55,55 @@ graph TD
 
 ---
 
-## ⚙️ Setup & Installation
+## ⚙️ Environment Recreation & Setup
 
-### 1. Conda Environment
-Activate or create the `t1d` conda environment:
+### 1. Recreate the Conda Environment
+If you need to recreate the `t1d` conda environment from scratch:
 ```powershell
+# Create a new environment with Python 3.10
+conda create -n t1d python=3.10 -y
+
+# Activate the environment
 conda activate t1d
 ```
 
 ### 2. Install Dependencies
-Install all required packages:
+Install all required dependencies listed in [`requirements.txt`](file:///C:/Users/SHREY/Desktop/t1d_bot/requirements.txt):
 ```powershell
 pip install -r requirements.txt
 ```
 
-### 3. Environment Variables (`.env`)
-Create a `.env` file in the root directory:
+### 3. Setup Ollama (Local LLM Service)
+The default configuration uses Ollama. Install Ollama and make sure it is running locally, then pull the required models configured in your [`.env`](file:///C:/Users/SHREY/Desktop/t1d_bot/.env):
+```powershell
+# Pull the configured local model (e.g. gemma3:1b)
+ollama pull gemma3:1b
+```
+
+### 4. Configure Environment Variables (`.env`)
+Create or verify the existence of a [`.env`](file:///C:/Users/SHREY/Desktop/t1d_bot/.env) file in the root directory:
 ```env
+# Set to 'ollama' or 'gemini'
 LLM_PROVIDER=ollama
-CHUNKING_MODEL=gemma4:e4b
-METADATA_MODEL=gemma4:e4b
-GENERATION_MODEL=gemma4:e4b
+
+# Ollama local models
+CHUNKING_MODEL=gemma3:1b
+METADATA_MODEL=gemma3:1b
+GENERATION_MODEL=gemma3:1b
+OLLAMA_HOST=http://localhost:11434
+
+# Shared Database & Embedding Configuration
 EMBEDDING_MODEL=BAAI/bge-m3
 MILVUS_HOST=t1d_corpus.db
 MILVUS_PORT=19530
 MILVUS_COLLECTION=t1d_corpus
-OLLAMA_HOST=http://localhost:11434
 ```
 
 ---
 
 ## 🚀 Running Ingestion
 
-The ingestion pipeline is config-driven and controlled by [sources.yaml](file:///C:/Users/SHREY/Desktop/t1d_bot/sources.yaml). It only processes documents with `status: pending`.
+The ingestion pipeline is config-driven and controlled by [`sources.yaml`](file:///C:/Users/SHREY/Desktop/t1d_bot/sources.yaml). It only processes documents with `status: pending`.
 
 ```powershell
 # Run ingestion on all pending sources in sources.yaml
@@ -132,30 +148,40 @@ We provide a local migration script to rebuild the database in 3.0 format using 
 Many Hindi PDFs (such as the patient education booklet) use custom font layouts that extract as scrambled Devanagari text (e.g., `एं जक्टआग` instead of `इंजेक्शन`).
 
 The V2 system solves this at two layers:
-1. **Ingestion-Side ([pdf_parser.py](file:///C:/Users/SHREY/Desktop/t1d_bot/src/ingestion/parsers/pdf_parser.py)):** Text is automatically checked via `is_scrambled_hindi()` and translated back to clean Unicode Devanagari using [hindi_decoder.py](file:///C:/Users/SHREY/Desktop/t1d_bot/src/ingestion/hindi_decoder.py) before it is embedded by BGE-M3.
+1. **Ingestion-Side ([pdf_parser.py](file:///C:/Users/SHREY/Desktop/t1d_bot/src/ingestion/parsers/pdf_parser.py)):** Text is automatically checked via `is_scrambled_hindi()` and translated back to clean Unicode Devanagari using [`hindi_decoder.py`](file:///C:/Users/SHREY/Desktop/t1d_bot/src/ingestion/hindi_decoder.py) before it is embedded by BGE-M3.
 2. **Frontend-Side ([dashboard.py](file:///C:/Users/SHREY/Desktop/t1d_bot/src/dashboard.py)):** If you are using a database that was ingested with scrambled text, the Streamlit app applies the decoder on-the-fly when rendering the search results.
 
 ---
 
-## 🖥️ Running the Retrieval Explorer UI
+## 🖥️ Usage Instructions
 
-Launch the Streamlit dashboard to search the corpus, apply metadata filters, and inspect scores:
-
-```powershell
-streamlit run src/dashboard.py
+### 1. Start the Milvus DB Live System (WSL)
+To run the live Milvus database system on WSL, start the services using Docker Compose:
+```bash
+docker compose up -d
 ```
 
-### Dashboard Features:
-* **Query Input:** Search for any T1D concept.
-* **Sidebar Filters:** Filter by Collection ID, Language (English/Hindi), Content Type (Guideline, Textbook, Patient Education), and boolean flags (Dosage, Recommendation).
-* **Source Authority Badges:** Displays relevance score, source document name, page number, and section title for every retrieved chunk.
-* **On-the-fly Decoding:** Automatically decodes and displays scrambled Hindi text in clean Devanagari.
+### 2. Running the Static SPA Retrieval Explorer UI
+Launch the FastAPI service and Static SPA to search the corpus, apply metadata filters, and inspect relevance scores:
+```powershell
+python src/service.py
+# or
+python src/dashboard.py
+```
+Then navigate to `http://localhost:8002` in your browser.
 
----
+### 3. Running the FastAPI Microservice API
+To run the background microservice API which hosts the same RAG search and generation capabilities over HTTP:
+```powershell
+python src/service.py
+```
+Or run via uvicorn directly:
+```powershell
+uvicorn src.service:app --host 0.0.0.0 --port 8002 --reload
+```
 
-## 🧪 Running Tests
-
-To run the unit and integration test suite:
+### 4. Running the Test Suite
+To run the full unit and integration test suite:
 ```powershell
 python -m pytest tests/
 ```

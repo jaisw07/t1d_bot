@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>T1D RAGbot</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- System Top Bar / Header -->
+        <header class="system-header">
+            <div class="header-branding">
+                <h1 class="system-title">T1D RAGbot</h1>
+            </div>
+            <div class="header-status">
+                <div class="status-indicator" id="status-indicator">
+                    <span class="status-dot"></span>
+                    <span class="status-label" id="status-label">Checking System Service...</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Modular Workspace -->
+        <div class="workspace-grid">
+            <!-- Sidebar: System Controls -->
+            <aside class="sidebar-panel">
+                <div class="panel-card">
+                    <h2 class="panel-title">System Controls</h2>
+                    
+                    <div class="control-group">
+                        <label class="control-label" for="rag-toggle">LLM Answer Generation</label>
+                        <label class="switch">
+                            <input type="checkbox" id="rag-toggle" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="control-group">
+                        <label class="control-label" for="top-k-slider">Number of chunks to retrieve: <span id="top-k-val">5</span></label>
+                        <input type="range" id="top-k-slider" min="1" max="20" value="5" class="range-input">
+                    </div>
+
+                    <div class="control-group">
+                        <label class="control-label" for="filter-language">Language for Retrieved Knowledge Base</label>
+                        <select id="filter-language" class="select-input">
+                            <option value="All">All Languages</option>
+                            <option value="english">English</option>
+                            <option value="hindi">Hindi</option>
+                        </select>
+                    </div>
+
+                    <button id="reset-controls-btn" class="btn btn-secondary">Reset Controls</button>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="main-panel">
+                <!-- Search Query Bar -->
+                <div class="search-card">
+                    <form id="search-form" class="search-form">
+                        <div class="search-input-wrapper">
+                            <input type="text" id="query-input" class="search-input" placeholder="Enter clinical inquiry (e.g., 'hypoglycemia treatment rule of 15', 'basal insulin dosing')..." required>
+                            <button type="button" id="clear-query-btn" class="clear-btn" title="Clear query">&times;</button>
+                        </div>
+                        <button type="submit" id="search-btn" class="btn btn-primary">Execute Search</button>
+                    </form>
+                </div>
+
+                <!-- Search Loading State -->
+                <div id="loading-spinner" class="loading-state hidden">
+                    <div class="spinner"></div>
+                    <p class="loading-text" id="loading-text">Thinking...</p>
+                </div>
+
+                <!-- AI Clinical Answer Card (Dynamic) -->
+                <section id="rag-response-section" class="content-section hidden">
+                    <div class="response-card">
+                        <div class="response-header">
+                            <h2 class="response-title">Clinical Guidance Summary</h2>
+                            <span class="response-lang-tag" id="rag-lang-tag">English</span>
+                        </div>
+                        <div class="response-body" id="rag-answer-content">
+                            <!-- Answer text will be injected here -->
+                        </div>
+                        <div class="response-footer">
+                            <span class="citations-heading">Citations:</span>
+                            <span id="rag-citations-content" class="citations-list">None</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Context Chunks Section (Dynamic) -->
+                <section id="results-section" class="content-section hidden">
+                    <div class="section-header">
+                        <h2 class="section-title" id="results-count-title">Retrieved Context Chunks</h2>
+                    </div>
+                    <div id="chunks-container" class="chunks-grid">
+                        <!-- Chunk cards will be injected here -->
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+    <script src="/static/app.js"></script>
+</body>
+</html>

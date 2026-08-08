@@ -15,3 +15,9 @@ scratch
 Guides
 test_v3.db
 t1d_corpus.tar.gz
+.secrets/
+evaluation
+.chainlit
+chainlit.md
+logs
+hardcoded
